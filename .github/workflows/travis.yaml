@@ -49,7 +49,7 @@ jobs:
 
   testrun:
     needs: setup
-    if: github.repository == '' && github.event_name == 'pull_request' && github.ref == 'refs/heads/master'
+    if: github.repository == '' && github.event_name == 'pull_request' && github.ref == 'master'
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
@@ -70,7 +70,7 @@ jobs:
 
   development:
     needs: setup
-    if: github.repository == 'bx-cms' && github.event_name != 'pull_request' && startsWith(github.ref, 'refs/heads/feature/')
+    if: github.repository == 'bx-cms' && github.event_name != 'pull_request' && startsWith(github.ref, 'feature/')
     runs-on: ubuntu-22.04
     env:
       ENV: d
@@ -92,7 +92,7 @@ jobs:
 
   UAT:
     needs: setup
-    if: github.repository == 'ms' && github.event_name != 'pull_request' && startsWith(github.ref, 'refs/heads/release/')
+    if: github.repository == 'ms' && github.event_name != 'pull_request' && startsWith(github.ref, 'release/')
     runs-on: ubuntu-22.04
     env:
       ENV: u
@@ -114,7 +114,7 @@ jobs:
 
   production:
     needs: setup
-    if: github.repository == 'tabx-cms' && github.event_name != 'pull_request' && startsWith(github.ref, 'refs/heads/prod/')
+    if: github.repository == 'tabx-cms' && github.event_name != 'pull_request' && startsWith(github.ref, 'prod/')
     runs-on: ubuntu-22.04
     env:
       ENV: p
