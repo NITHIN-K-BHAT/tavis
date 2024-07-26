@@ -41,8 +41,10 @@ jobs:
 
       - name: Start MySQL service
         run: sudo service mysql start
+          echo :"I am deploying to uat"
 
   testrun:
+    
     needs: setup
     if: github.repository == 'https://github.com/NITHIN-K-BHAT/travis'  && github.ref == 'refs/heads/master'
     runs-on: ubuntu-22.04
