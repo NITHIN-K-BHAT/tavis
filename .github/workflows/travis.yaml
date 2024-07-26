@@ -46,7 +46,7 @@ jobs:
   testrun:
     
     needs: setup
-    if: github.repository == 'https://github.com/NITHIN-K-BHAT/travis'  && github.ref == 'refs/heads/master'
+    if: github.repository == 'https://github.com/NITHIN-K-BHAT/fetch-from-github-api'  && github.ref == 'refs/heads/master'
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
