@@ -9,9 +9,7 @@ on:
       - "feature/**"
       - "bug/**"
       - "hotfix/**"
-  pull_request:
-    branches:
-      - master
+  
 
 jobs:
   setup:
@@ -46,7 +44,7 @@ jobs:
 
   testrun:
     needs: setup
-    if: github.repository == '' && github.event_name == 'pull_request' && github.ref == 'refs/heads/master'
+    if: github.repository == 'https://github.com/NITHIN-K-BHAT/travis'  && github.ref == 'refs/heads/master'
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
