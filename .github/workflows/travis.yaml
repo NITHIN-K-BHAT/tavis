@@ -44,6 +44,9 @@ jobs:
       - name: Start MySQL service
         run: sudo service mysql start
 
+      - name: Install WP test suite
+        run: bash bin/install-wp-tests.sh test root '' localhost latest
+
   testrun:
     needs: setup
     if: github.repository == '' && github.event_name == 'pull_request' && github.ref == 'refs/heads/master'
