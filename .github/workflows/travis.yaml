@@ -3,7 +3,6 @@ name: CI/CD Pipelines
 on:
   push:
     branches:
-      - master
       - "release/**"
       - "prod/**"
       - "feature/**"
