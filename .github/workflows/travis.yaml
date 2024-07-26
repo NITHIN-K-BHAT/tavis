@@ -66,8 +66,10 @@ jobs:
 
   development:
     needs: setup
-    if: github.repository == 'bx-cms' && github.event_name != 'pull_request' && startsWith(github.ref, 'feature')
+    if: github.repository == 'https://github.com/NITHIN-K-BHAT/travis' && github.event_name  = 'push' && startsWith(github.ref, 'feature')
+    
     runs-on: ubuntu-22.04
+
     env:
       ENV: d
       BUILD_NUMBER: ${{ github.run_number }}
