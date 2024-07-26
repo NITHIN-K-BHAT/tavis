@@ -66,7 +66,7 @@ jobs:
 
   development:
     needs: setup
-    if: github.repository == 'https://github.com/NITHIN-K-BHAT/travis' && github.event_name  = 'push' && startsWith(github.ref, 'feature')
+    if: github.repository == 'https://github.com/NITHIN-K-BHAT/travis'  && startsWith(github.ref, 'feature')
     
     runs-on: ubuntu-22.04
 
