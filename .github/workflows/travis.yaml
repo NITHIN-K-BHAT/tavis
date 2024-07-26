@@ -1,0 +1,132 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - master
+      - "release/**"
+      - "prod/**"
+      - "feature/**"
+      - "bug/**"
+      - "hotfix/**"
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  setup:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.0.9
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y sshpass subversion
+          pip install --user boto3 awscli
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v2
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v1
+
+      - name: Start MySQL service
+        run: sudo service mysql start
+
+  testrun:
+    needs: setup
+    if: github.repository == '' && github.event_name == 'pull_request' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Composer dependencies
+        run: |
+          cd wordpress
+          composer install
+          cd ..
+
+      - name: Run tests
+        run: |
+          php -dxdebug.mode=coverage ./wordpress/vendor/bin/phpunit -c phpunit.xml.dist --coverage-clover=clover.php --log-junit=test-report.xml
+
+      - name: Run SonarQube Scanner
+        run: sonar-scanner
+
+  development:
+    needs: setup
+    if: github.repository == 'bx-cms' && github.event_name != 'pull_request' && startsWith(github.ref, 'refs/heads/feature/')
+    runs-on: ubuntu-22.04
+    env:
+      ENV: d
+      BUILD_NUMBER: ${{ github.run_number }}
+      CLUSTER_NAME: ap-
+      SERVICE_NAME: ecs-service-content-
+      TASK_DEFN: ecs-tg-
+      DESIRED_COUNT: 1
+      ECS_REPOSITORY: ghj
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to Development
+        run: |
+          echo "I am deploying to dev"
+          bash ./build.sh
+          bash ./deploy/deploy.sh
+
+  UAT:
+    needs: setup
+    if: github.repository == 'ms' && github.event_name != 'pull_request' && startsWith(github.ref, 'refs/heads/release/')
+    runs-on: ubuntu-22.04
+    env:
+      ENV: u
+      BUILD_NUMBER: ${{ github.run_number }}
+      CLUSTER_NAME: $TRAVIS_BUILD_NUMBER
+      SERVICE_NAME: ecs-use1-ap-pe-content-client-ubx2-cms-u
+      TASK_DEFN: ecs-service-content-client-ubx2-cms-u
+      DESIRED_COUNT: 1
+      ECS_REPOSITORY: x2-cms
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to UAT
+        run: |
+          echo "I am deploying to uat"
+          bash ./build.sh
+          bash ./deploy/deploy.sh
+
+  production:
+    needs: setup
+    if: github.repository == 'tabx-cms' && github.event_name != 'pull_request' && startsWith(github.ref, 'refs/heads/prod/')
+    runs-on: ubuntu-22.04
+    env:
+      ENV: p
+      BUILD_NUMBER: ${{ github.run_number }}
+      CLUSTER_NAME: x2-cms-p
+      SERVICE_NAME: ep
+      TASK_DEFN: ec-p
+      DESIRED_COUNT: 1
+      ECS_REPOSITORY: 01t-ubx2-cms
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to Production
+        run: |
+          echo "I am deploying to production"
+          bash ./build.sh
+          bash ./deploy/deploy.sh
